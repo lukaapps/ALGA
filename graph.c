@@ -239,17 +239,13 @@ struct solution *graphSolve(struct graph *g, enum problemPart part,
           s= i;
           d = j;
         }
-
       }
-      
     }
-  
     void *memory = malloc(sizeof(int));
     int *value = (int *)memory;
     int b = 0;
     value[b] = s;
     b++;
-    int check = 0;
     for(i = s; i <= d; i++){
       for(j = i; j <= d; j++){
         if(distMat[i][j]==1){
@@ -264,13 +260,59 @@ struct solution *graphSolve(struct graph *g, enum problemPart part,
       }
     }
     value[b] = d;
-    
-    
     solution->postOutageDiameter = max;
     solution->postOutageDiameterCount = max + 1;
     solution->postOutageDiameterSIDs = value;
   } else if(part == TASK_7) {
     /* IMPLEMENT TASK 7 SOLUTION HERE */
+    void * mem = malloc(sizeof(int));
+    int * criticalServerPoint = (int *)mem;
+    int check = 0;
+    countComponents(g, numVertices, visited, adjMat);
+    int initialCount = count;
+    for(int m = 0; m <numVertices; m++){
+        for(int n = 0; n < numVertices; n++){
+          printf("%d ", adjMat[m][n]);
+        }
+        printf("\n");
+      }
+      printf("\n");
+    for(int i = 0; i < numVertices; i++){
+      count = 0;
+      for(int j = 0; j <= 1; j++){
+        for(int k =0; k < numVertices; k++){
+          if(j == 0){
+            adjMat[i][k] = 0;
+          } else{
+            adjMat[k][i] = 0;
+          }
+        }
+      }
+      for(int b = 0; b < numVertices; b++){
+        visited[b] = 0;
+      }
+      countComponents(g, numVertices, visited, adjMat);
+      printf("%d \n", count);
+
+      printf("%d \n", i);
+      for(int m = 0; m <numVertices; m++){
+        for(int n = 0; n < numVertices; n++){
+          printf("%d ", adjMat[m][n]);
+        }
+        printf("\n");
+      }
+      printf("\n");
+      
+      if(count > initialCount){
+        criticalServerPoint[i] = i;
+        check++;
+      }
+      adjacentMatrix(numVertices, g, adjMat);
+
+    }
+
+    printf("%d", check);
+
     solution->criticalServerCount = 0;
     solution->criticalServerSIDs = NULL;
   }
