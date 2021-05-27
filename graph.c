@@ -74,9 +74,18 @@ void addEdge(struct graph *g, int start, int end){
   (g->numEdges)++;
 }
 
-
-
-
+void removeVertex(int * adjMat[], int vertex, int n){
+  int i;
+  while (vertex < n){
+    for(i = 0; i<n;i++){
+      adjMat[i][vertex] = adjMat[i][vertex+1];
+    }
+    for(i = 0; i <n; i++){
+      adjMat[vertex][i] = adjMat[vertex+1][i];
+    }
+    vertex++;
+  }
+}
 /* Frees all memory used by graph. */
 void freeGraph(struct graph *g){
   int i;
@@ -104,7 +113,8 @@ void freeGraph(struct graph *g){
   
 }
 void countComponents(struct graph *g, int numVerticies, int visited[], int * adjMat[]){
-  for(int j= 0; j<numVerticies; j++){
+  int j;
+  for(j= 0; j<numVerticies; j++){
       if(!visited[j]){
         count++;
         DFS(j, visited, numVerticies, adjMat);
@@ -128,47 +138,51 @@ struct solution *graphSolve(struct graph *g, enum problemPart part,
     malloc(sizeof(struct solution));
   assert(solution);
   /* Initialise solution values */
+  
   initaliseSolution(solution);
   int numVertices = g->numVertices;
   int visited[numVertices];
   int * adjMat[numVertices];
   adjacentMatrix(numVertices, g, adjMat);
-  assert(adjMat);
-  for(int i = 0; i < numVertices; i++){
+  int i;
+  for(i = 0; i < numVertices; i++){
         visited[i] = 0;
     }
   if(part == TASK_2){
     /* IMPLEMENT TASK 2 SOLUTION HERE */
     countComponents(g, numVertices, visited, adjMat);
     solution->connectedSubnets = count;
+
   } else if(part == TASK_3) {
     /* IMPLEMENT TASK 3 SOLUTION HERE */
     int m = 0;
     int largest = 0;
     countComponents(g, numVertices, visited, adjMat);
-    int longestComp[count + 1];
-    for(int i = 0; i < numVertices; i++){
+    void *alloc = malloc(sizeof(int));
+    int *trial = (int *)alloc;
+    int j;
+    for(i = 0; i < numVertices; i++){
         visited[i] = 0;
     }
-    for(int j= 0; j<numVertices; j++){
+    for(j= 0; j<numVertices; j++){
       if(!visited[j]){
-        longestComp[m] = j;
+        trial[m] = j;
         m++;
         DFS(j, visited, numVertices, adjMat);
       }
     }
-    
     int index = 0;
+    int n;
     int differenceList[count-1];
-    longestComp[count] = numVertices;
+    trial[count] = numVertices;
     if(count > 1){      
-      int j = 0;
-      for(int i = 1; i <= count; i++){
-        differenceList[j] = longestComp[i] - longestComp[j];
+      j = 0;
+      for(i = 1; i <= count; i++){
+        differenceList[j] = trial[i] - trial[j];
         j++;
       }
       largest = differenceList[0];
-      for(int n = 0; n < count; n++){
+      for(n = 0; n < count; n++){
         if(differenceList[n] > largest){
           largest = differenceList[n];
           index = n;
@@ -180,25 +194,27 @@ struct solution *graphSolve(struct graph *g, enum problemPart part,
       largest = numVertices;
     }
     void *memory = malloc(sizeof(int));
-    
+    int *value = (int *)memory;
     int check = 0;
     check += largest;
     solution->largestSubnet = check;
-    int *value = (int *)memory;
+    
 
     int b = 0;
-    for(int k = longestComp[index]; k < longestComp[index+1]; k++){
+    int k;
+    
+    for(k = trial[index]; k < trial[index+1]; k++){
       value[b] = k;
       b++;
       
     }
-    solution->largestSubnetSIDs = value;     
+    solution->largestSubnetSIDs = value;
     
     
     
   } else if(part == TASK_4) {
     /* IMPLEMENT TASK 4 SOLUTION HERE */
-    int distMat[numVertices][numVertices], i, n, j;
+    int distMat[numVertices][numVertices], n, j;
     for(i = 0; i < numVertices; i++){
       for(j = 0; j < numVertices; j++){
         if(adjMat[i][j] ==0 && j!=i){
@@ -220,9 +236,10 @@ struct solution *graphSolve(struct graph *g, enum problemPart part,
         }
       }
     }
-    for(int k = 0; k < numVertices; k++){
-      for(int g = 0; g < numVertices; g++){
-        for(int h = 0; h < numVertices; h++){
+    int k, g, h;
+    for(k = 0; k < numVertices; k++){
+      for(g = 0; g < numVertices; g++){
+        for(h = 0; h < numVertices; h++){
           if(distMat[g][k] + distMat[k][h] < distMat[g][h]){
             distMat[g][h] = distMat[g][k] + distMat[k][h];
           }
@@ -265,56 +282,48 @@ struct solution *graphSolve(struct graph *g, enum problemPart part,
     solution->postOutageDiameterSIDs = value;
   } else if(part == TASK_7) {
     /* IMPLEMENT TASK 7 SOLUTION HERE */
-    void * mem = malloc(sizeof(int));
-    int * criticalServerPoint = (int *)mem;
-    int check = 0;
-    countComponents(g, numVertices, visited, adjMat);
-    int initialCount = count;
-    for(int m = 0; m <numVertices; m++){
-        for(int n = 0; n < numVertices; n++){
-          printf("%d ", adjMat[m][n]);
-        }
-        printf("\n");
-      }
-      printf("\n");
-    for(int i = 0; i < numVertices; i++){
-      count = 0;
-      for(int j = 0; j <= 1; j++){
-        for(int k =0; k < numVertices; k++){
-          if(j == 0){
-            adjMat[i][k] = 0;
-          } else{
-            adjMat[k][i] = 0;
-          }
-        }
-      }
-      for(int b = 0; b < numVertices; b++){
-        visited[b] = 0;
-      }
-      countComponents(g, numVertices, visited, adjMat);
-      printf("%d \n", count);
-
-      printf("%d \n", i);
-      for(int m = 0; m <numVertices; m++){
-        for(int n = 0; n < numVertices; n++){
-          printf("%d ", adjMat[m][n]);
-        }
-        printf("\n");
-      }
-      printf("\n");
-      
-      if(count > initialCount){
-        criticalServerPoint[i] = i;
-        check++;
-      }
-      adjacentMatrix(numVertices, g, adjMat);
-
+    int artPoint = 0;
+    void *collect = malloc(sizeof(int));
+    int * criticalPoints = (int *)collect;
+    int b = 0;
+    int j;
+    for (i = 0; i < numVertices; i++){
+      visited[i] = 0;
     }
+    void *memory = malloc(sizeof(int));
+    int * temp = (int *)memory;
+    countComponents(g, numVertices, visited, adjMat);
+    int initial_val = count;
+    count = 0;
+    
+    for(i=0; i < numVertices; i++){
+      for(j = 0; j < numVertices; j++){
+        visited[j] = 0;
+        temp[j] = adjMat[i][j];
+        adjMat[i][j] =0;
+        adjMat[j][i] = 0;
+      }
+      int newCount = 0;
+      for(j = 0; j<numVertices;j++){
+        if(visited[j] == 0 && j != i){
+          newCount++;
+          DFS(j, visited, numVertices,adjMat );
+        }
 
-    printf("%d", check);
-
-    solution->criticalServerCount = 0;
-    solution->criticalServerSIDs = NULL;
+      }
+      if(newCount > initial_val){
+        artPoint++;
+        criticalPoints[b] = i; 
+        b++;
+      }
+      for(j = 0; j<numVertices; j++){
+        adjMat[i][j] = temp[j];
+        adjMat[j][i] = temp[j];
+      }
+    }
+    
+    solution->criticalServerCount = artPoint;
+    solution->criticalServerSIDs = criticalPoints;
   }
   return solution;
   free(solution);

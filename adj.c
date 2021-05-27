@@ -21,7 +21,7 @@ struct edge {
 };
 
 void adjacentMatrix(int num, struct graph *g, int * adjMat[]){
-    int i;
+    int i, j;
     //Assigning memory to the adjacency matrix
     for (i = 0; i<num; i++){
       adjMat[i] = (int *) malloc((num) * sizeof(int));
@@ -30,7 +30,7 @@ void adjacentMatrix(int num, struct graph *g, int * adjMat[]){
     assert(adjMat);
 
     for (i = 0; i < num; i++){
-      for(int j = 0; j < num; j++){
+      for(j = 0; j < num; j++){
         adjMat[i][j] = 0;
       }
     }

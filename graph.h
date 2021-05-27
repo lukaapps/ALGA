@@ -59,6 +59,9 @@ void addEdge(struct graph *g, int start, int end);
   - Number of critical servers (before outage) (Task 7)
   - SIDs of critical servers (before outage) (Task 7)
  */
+void removeVertex(int * adjMat[], int vertex, int n);
+void countComponents(struct graph *g, int numVerticies, int visited[], int * adjMat[]);
+
 void DFS(int vertex, int visited[], int numVerticies, int * adjMat[]);
 struct solution *graphSolve(struct graph *g, enum problemPart part,
   int numServers, int numOutages, int *outages);
